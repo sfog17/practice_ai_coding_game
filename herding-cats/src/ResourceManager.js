@@ -9,9 +9,9 @@ export class ResourceManager {
                 const img = new Image();
                 img.onload = () => {
                     this.images[key] = img;
-                    console.log(`Loaded asset: ${key}`);
                     resolve();
                 };
+
                 img.onerror = (e) => {
                     console.error(`Failed to load image: ${imagePaths[key]}`, e);
                     // Resolve anyway to avoid crashing everything

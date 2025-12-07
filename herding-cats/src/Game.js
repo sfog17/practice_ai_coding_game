@@ -42,9 +42,8 @@ export class Game {
         // Calculate required height: Pen Y (50) + Pen Height + Eating Place Offset + Eating Place Height + Margin
         const minHeight = 50 + Config.PEN_HEIGHT + Config.EATING_PLACE_OFFSET + Config.EATING_PLACE_HEIGHT + 50;
         this.canvas.height = Math.max(window.innerHeight, minHeight);
-
-        console.log(`[DEBUG] Resized canvas to ${this.canvas.width}x${this.canvas.height} (Min Height: ${minHeight})`);
     }
+
 
     setupInput() {
         // Mouse
@@ -91,24 +90,22 @@ export class Game {
 
 
     async start() {
-        console.log("[DEBUG] Game start() called");
+
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
         }
         this.isRunning = false;
 
         if (!this.resources.images['DOG']) {
-            console.log("[DEBUG] Loading assets...");
             await this.resources.loadImages(Config.ASSETS);
-            console.log("[DEBUG] Assets loaded");
         }
+
 
         this.isRunning = true;
         this.lastTime = performance.now();
         this.entities = [];
         this.score = 0;
 
-        console.log("[DEBUG] Spawning entities...");
         // Spawn Pen (Top Center)
         const penW = Config.PEN_WIDTH;
         const penH = Config.PEN_HEIGHT;
@@ -127,11 +124,11 @@ export class Game {
             eatingPlaceW,
             eatingPlaceH
         );
-        console.log(`[DEBUG] Eating Place created at (${Math.round(this.eatingPlace.x)}, ${Math.round(this.eatingPlace.y)}) with size ${Math.round(this.eatingPlace.width)}x${Math.round(this.eatingPlace.height)}`);
-        console.log(`[DEBUG] Pen bottom at y=${Math.round(this.pen.y + this.pen.height)}, Eating place starts at y=${Math.round(this.eatingPlace.y)}`);
+
+
 
         // Spawn Dog
-        // Spawn Dog
+
         // Place dog inside eating place
         const dogX = this.eatingPlace.x + this.eatingPlace.width / 2;
         const dogY = this.eatingPlace.y + this.eatingPlace.height / 2;
@@ -147,15 +144,13 @@ export class Game {
             const x = this.eatingPlace.x + margin + Math.random() * (this.eatingPlace.width - margin * 2);
             const y = this.eatingPlace.y + margin + Math.random() * (this.eatingPlace.height - margin * 2);
 
-            console.log(`[DEBUG] Cat ${i + 1} spawned at (${Math.round(x)}, ${Math.round(y)}) - Eating Area: x[${Math.round(this.eatingPlace.x)}-${Math.round(this.eatingPlace.x + this.eatingPlace.width)}], y[${Math.round(this.eatingPlace.y)}-${Math.round(this.eatingPlace.y + this.eatingPlace.height)}]`);
-
             const cat = new Cat(x, y);
             // Assign different cat sprite using modulo for wrapping
             const catIndex = (i % 9) + 1;
             cat.image = this.resources.getImage('CAT' + catIndex);
             this.entities.push(cat);
         }
-        console.log(`[DEBUG] Entities spawned: ${this.entities.length}`);
+
 
         this.loop(performance.now());
     }

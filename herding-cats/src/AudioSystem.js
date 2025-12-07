@@ -1,9 +1,17 @@
 export class AudioSystem {
     constructor() {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        try {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.enabled = true;
+        } catch (e) {
+            console.warn('Audio not supported in this browser:', e);
+            this.enabled = false;
+        }
     }
 
+
     playBark() {
+        if (!this.enabled) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -23,6 +31,7 @@ export class AudioSystem {
     }
 
     playMeow() {
+        if (!this.enabled) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -43,6 +52,7 @@ export class AudioSystem {
     }
 
     playDing() {
+        if (!this.enabled) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -60,6 +70,7 @@ export class AudioSystem {
     }
 
     playWin() {
+        if (!this.enabled) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
 
         const now = this.ctx.currentTime;

@@ -96,12 +96,8 @@ export class Pen {
                     pushX += (distX / distance) * overlap;
                     pushY += (distY / distance) * overlap;
                     hasCollision = true;
-                } else {
-                    // Center is exactly inside the wall. Push out towards the nearest edge center?
-                    // Simple fallback: just treat as collision but don't know direction. 
-                    // Usually doesn't happen with floating point unless exact match.
-                    // Ignore or push slightly up?
                 }
+
             }
         }
 
