@@ -24,6 +24,27 @@ export class Cat extends Entity {
             speed = this.runSpeed;
             // Angle away from dog
             this.moveAngle = Utils.angleBetween(dog, this);
+
+            // Adjust angle if near edges to prevent getting stuck
+            const margin = this.radius * 2;
+
+            // Check if we're near edges and adjust flee angle accordingly
+            if (this.x < margin && Math.cos(this.moveAngle) < 0) {
+                // Near left edge and trying to go left - redirect
+                this.moveAngle = Math.PI - this.moveAngle; // Reflect horizontally
+            }
+            if (this.x > canvas.width - margin && Math.cos(this.moveAngle) > 0) {
+                // Near right edge and trying to go right - redirect
+                this.moveAngle = Math.PI - this.moveAngle; // Reflect horizontally
+            }
+            if (this.y < margin && Math.sin(this.moveAngle) < 0) {
+                // Near top edge and trying to go up - redirect
+                this.moveAngle = -this.moveAngle; // Reflect vertically
+            }
+            if (this.y > canvas.height - margin && Math.sin(this.moveAngle) > 0) {
+                // Near bottom edge and trying to go down - redirect
+                this.moveAngle = -this.moveAngle; // Reflect vertically
+            }
         } else {
             // WANDER MODE
             this.wanderTimer -= dt;
