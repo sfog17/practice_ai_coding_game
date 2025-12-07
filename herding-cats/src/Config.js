@@ -1,6 +1,6 @@
 export const Config = {
     CANVAS_ID: 'gameCanvas',
-    CAT_COUNT: 8,
+    CAT_COUNT: 9,
     DOG_SPEED: 300,
     CAT_SPEED_NORMAL: 50,
     CAT_SPEED_RUN: 200,
@@ -15,7 +15,15 @@ export const Config = {
     },
     ASSETS: {
         DOG: './assets/dog.png',
-        CAT: './assets/cat.png',
+        CAT1: './assets/cat1.png',
+        CAT2: './assets/cat2.png',
+        CAT3: './assets/cat3.png',
+        CAT4: './assets/cat4.png',
+        CAT5: './assets/cat5.png',
+        CAT6: './assets/cat6.png',
+        CAT7: './assets/cat7.png',
+        CAT8: './assets/cat8.png',
+        CAT9: './assets/cat9.png',
         GRASS: './assets/grass.png'
     }
 };

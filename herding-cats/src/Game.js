@@ -127,7 +127,9 @@ export class Game {
             } while (y < 300); // Keep them in lower part initially
 
             const cat = new Cat(x, y);
-            cat.image = this.resources.getImage('CAT');
+            // Assign different cat sprite using modulo for wrapping
+            const catIndex = (i % 9) + 1;
+            cat.image = this.resources.getImage('CAT' + catIndex);
             this.entities.push(cat);
         }
         console.log(`[DEBUG] Entities spawned: ${this.entities.length}`);
