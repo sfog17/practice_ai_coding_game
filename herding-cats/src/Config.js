@@ -7,6 +7,9 @@ export const Config = {
     CAT_FLEE_RADIUS: 150,
     PEN_WIDTH: 300,
     PEN_HEIGHT: 200,
+    EATING_PLACE_WIDTH: 300,
+    EATING_PLACE_HEIGHT: 150,
+    EATING_PLACE_OFFSET: 300, // Distance below pen
     COLORS: {
         DOG: '#FFF',
         CAT: '#ff9800',

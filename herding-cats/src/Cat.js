@@ -8,7 +8,7 @@ export class Cat extends Entity {
         this.normalSpeed = Config.CAT_SPEED_NORMAL;
         this.runSpeed = Config.CAT_SPEED_RUN;
         this.fleeRadius = Config.CAT_FLEE_RADIUS;
-        this.wanderTimer = 0;
+        this.wanderTimer = 5.0; // Start with 5 seconds before wandering
         this.moveAngle = Math.random() * Math.PI * 2;
     }
 

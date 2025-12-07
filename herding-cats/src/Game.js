@@ -4,6 +4,7 @@ import { AudioSystem } from './AudioSystem.js';
 import { Dog } from './Dog.js';
 import { Cat } from './Cat.js';
 import { Pen } from './Pen.js';
+import { EatingPlace } from './EatingPlace.js';
 
 export class Game {
     constructor(canvasId) {
@@ -28,6 +29,7 @@ export class Game {
 
         this.dog = null;
         this.pen = null;
+        this.eatingPlace = null;
 
         this.resize();
         window.addEventListener('resize', () => this.resize());
@@ -111,20 +113,35 @@ export class Game {
         this.pen = new Pen((this.canvas.width - safeW) / 2, 50, safeW, penH);
         this.pen.image = this.resources.getImage('GRASS');
 
+        // Spawn Eating Place (300 pixels below pen)
+        const eatingPlaceW = Math.min(Config.EATING_PLACE_WIDTH, this.canvas.width - 40);
+        const eatingPlaceH = Config.EATING_PLACE_HEIGHT;
+        const eatingPlaceY = this.pen.y + this.pen.height + Config.EATING_PLACE_OFFSET;
+        this.eatingPlace = new EatingPlace(
+            (this.canvas.width - eatingPlaceW) / 2,
+            eatingPlaceY,
+            eatingPlaceW,
+            eatingPlaceH
+        );
+        console.log(`[DEBUG] Eating Place created at (${Math.round(this.eatingPlace.x)}, ${Math.round(this.eatingPlace.y)}) with size ${Math.round(this.eatingPlace.width)}x${Math.round(this.eatingPlace.height)}`);
+        console.log(`[DEBUG] Pen bottom at y=${Math.round(this.pen.y + this.pen.height)}, Eating place starts at y=${Math.round(this.eatingPlace.y)}`);
+
         // Spawn Dog
-        this.dog = new Dog(this.canvas.width / 2, this.canvas.height / 2);
+        // Place dog below pen but above eating place (safe distance)
+        const dogY = this.pen.y + this.pen.height + 100;
+        this.dog = new Dog(this.canvas.width / 2, dogY);
         this.dog.image = this.resources.getImage('DOG');
         this.entities.push(this.dog);
 
-        // Spawn Cats
+
+        // Spawn Cats inside the eating area
         for (let i = 0; i < this.totalCats; i++) {
-            // Spawn away from pen initially
-            // Random position but check dist to Pen
-            let x, y;
-            do {
-                x = Math.random() * (this.canvas.width - 40) + 20;
-                y = Math.random() * (this.canvas.height - 40) + 20;
-            } while (y < 300); // Keep them in lower part initially
+            // Spawn cats randomly within the eating place boundaries
+            const margin = 20; // Keep cats away from the edges
+            const x = this.eatingPlace.x + margin + Math.random() * (this.eatingPlace.width - margin * 2);
+            const y = this.eatingPlace.y + margin + Math.random() * (this.eatingPlace.height - margin * 2);
+
+            console.log(`[DEBUG] Cat ${i + 1} spawned at (${Math.round(x)}, ${Math.round(y)}) - Eating Area: x[${Math.round(this.eatingPlace.x)}-${Math.round(this.eatingPlace.x + this.eatingPlace.width)}], y[${Math.round(this.eatingPlace.y)}-${Math.round(this.eatingPlace.y + this.eatingPlace.height)}]`);
 
             const cat = new Cat(x, y);
             // Assign different cat sprite using modulo for wrapping
@@ -154,6 +171,16 @@ export class Game {
         if (this.dog) {
             this.dog.setInput(this.input);
             this.dog.update(dt);
+
+            // Check pen collision for dog
+            if (this.pen) {
+                const collision = this.pen.checkCollision(this.dog, this.dog.x, this.dog.y);
+                if (collision) {
+                    this.dog.x += collision.pushX;
+                    this.dog.y += collision.pushY;
+                }
+            }
+
             // bounds for dog
             this.dog.x = Math.max(this.dog.radius, Math.min(this.canvas.width - this.dog.radius, this.dog.x));
             this.dog.y = Math.max(this.dog.radius, Math.min(this.canvas.height - this.dog.radius, this.dog.y));
@@ -164,6 +191,18 @@ export class Game {
         this.entities.forEach(entity => {
             if (entity instanceof Cat) {
                 entity.update(dt, this.dog, this.canvas);
+
+                // Check pen collision for cats
+                if (this.pen) {
+                    const collision = this.pen.checkCollision(entity, entity.x, entity.y);
+                    if (collision) {
+                        entity.x += collision.pushX;
+                        entity.y += collision.pushY;
+                        // Bounce off wall
+                        if (collision.pushX !== 0) entity.velX *= -0.5;
+                        if (collision.pushY !== 0) entity.velY *= -0.5;
+                    }
+                }
 
                 // Keep cats in bounds
                 if (entity.x < entity.radius) { entity.x = entity.radius; entity.velX *= -1; }
@@ -202,7 +241,11 @@ export class Game {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
 
-        // Draw Pen first (floor)
+
+        // Draw Eating Place
+        if (this.eatingPlace) this.eatingPlace.render(this.ctx);
+
+        // Draw Pen (after eating place so pen is on top)
         if (this.pen) this.pen.render(this.ctx);
 
         // Sort by Y for simple depth
