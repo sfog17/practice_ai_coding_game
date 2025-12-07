@@ -63,41 +63,46 @@ export class Pen {
         let pushY = 0;
         let hasCollision = false;
 
-        // Check if entity is in the opening area - if so, allow free passage
-        const inOpening = this.isInOpening(newX, newY, radius);
+        // Define the 5 wall segments as rectangles: x, y, width, height
+        const walls = [
+            // Top Wall
+            { x: this.x, y: this.y, w: this.width, h: this.wallThickness },
+            // Left Wall
+            { x: this.x, y: this.y, w: this.wallThickness, h: this.height },
+            // Right Wall
+            { x: this.x + this.width - this.wallThickness, y: this.y, w: this.wallThickness, h: this.height },
+            // Bottom Left Wall
+            { x: this.x, y: this.y + this.height - this.wallThickness, w: this.openingLeft - this.x, h: this.wallThickness },
+            // Bottom Right Wall
+            { x: this.openingRight, y: this.y + this.height - this.wallThickness, w: (this.x + this.width) - this.openingRight, h: this.wallThickness }
+        ];
 
-        if (inOpening) {
-            // No collisions when in the opening - allow free movement
-            return null;
-        }
+        for (const wall of walls) {
+            // Find closest point on this wall rectangle to the circle center
+            const testX = Math.max(wall.x, Math.min(newX, wall.x + wall.w));
+            const testY = Math.max(wall.y, Math.min(newY, wall.y + wall.h));
 
-        // Top wall
-        const topWall = this.y;
-        if (newY - radius < topWall) {
-            pushY = (topWall - (newY - radius));
-            hasCollision = true;
-        }
+            const distX = newX - testX;
+            const distY = newY - testY;
+            const distanceSq = distX * distX + distY * distY;
 
-        // Left wall
-        const leftWall = this.x;
-        if (newX - radius < leftWall) {
-            pushX = (leftWall - (newX - radius));
-            hasCollision = true;
-        }
+            // Check if closest point is within radius (avoid sqrt if possible first, but need distance for push)
+            if (distanceSq < radius * radius) {
+                const distance = Math.sqrt(distanceSq);
 
-        // Right wall
-        const rightWall = this.x + this.width;
-        if (newX + radius > rightWall) {
-            pushX = (rightWall - (newX + radius));
-            hasCollision = true;
-        }
-
-        // Bottom wall (with opening)
-        const bottomWall = this.y + this.height;
-        if (newY + radius > bottomWall) {
-            // Colliding with bottom wall segments (left or right of opening)
-            pushY = (bottomWall - (newY + radius));
-            hasCollision = true;
+                if (distance > 0) {
+                    // Normal collision response
+                    const overlap = radius - distance;
+                    pushX += (distX / distance) * overlap;
+                    pushY += (distY / distance) * overlap;
+                    hasCollision = true;
+                } else {
+                    // Center is exactly inside the wall. Push out towards the nearest edge center?
+                    // Simple fallback: just treat as collision but don't know direction. 
+                    // Usually doesn't happen with floating point unless exact match.
+                    // Ignore or push slightly up?
+                }
+            }
         }
 
         return hasCollision ? { pushX, pushY } : null;

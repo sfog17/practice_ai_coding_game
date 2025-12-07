@@ -38,8 +38,12 @@ export class Game {
 
     resize() {
         this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        console.log(`[DEBUG] Resized canvas to ${this.canvas.width}x${this.canvas.height}`);
+
+        // Calculate required height: Pen Y (50) + Pen Height + Eating Place Offset + Eating Place Height + Margin
+        const minHeight = 50 + Config.PEN_HEIGHT + Config.EATING_PLACE_OFFSET + Config.EATING_PLACE_HEIGHT + 50;
+        this.canvas.height = Math.max(window.innerHeight, minHeight);
+
+        console.log(`[DEBUG] Resized canvas to ${this.canvas.width}x${this.canvas.height} (Min Height: ${minHeight})`);
     }
 
     setupInput() {
@@ -127,9 +131,11 @@ export class Game {
         console.log(`[DEBUG] Pen bottom at y=${Math.round(this.pen.y + this.pen.height)}, Eating place starts at y=${Math.round(this.eatingPlace.y)}`);
 
         // Spawn Dog
-        // Place dog below pen but above eating place (safe distance)
-        const dogY = this.pen.y + this.pen.height + 100;
-        this.dog = new Dog(this.canvas.width / 2, dogY);
+        // Spawn Dog
+        // Place dog inside eating place
+        const dogX = this.eatingPlace.x + this.eatingPlace.width / 2;
+        const dogY = this.eatingPlace.y + this.eatingPlace.height / 2;
+        this.dog = new Dog(dogX, dogY);
         this.dog.image = this.resources.getImage('DOG');
         this.entities.push(this.dog);
 
