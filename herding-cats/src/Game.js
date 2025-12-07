@@ -200,16 +200,33 @@ export class Game {
                         entity.x += collision.pushX;
                         entity.y += collision.pushY;
                         // Bounce off wall
-                        if (collision.pushX !== 0) entity.velX *= -0.5;
-                        if (collision.pushY !== 0) entity.velY *= -0.5;
+                        // Determine normal direction based on push
+                        // If pushed right (pushX > 0), wall is to left (normal +1, 0)
+                        // If pushed left (pushX < 0), wall is to right (normal -1, 0)
+                        if (collision.pushX !== 0 || collision.pushY !== 0) {
+                            entity.bounce(collision.pushX, collision.pushY);
+                        }
                     }
                 }
 
                 // Keep cats in bounds
-                if (entity.x < entity.radius) { entity.x = entity.radius; entity.velX *= -1; }
-                if (entity.x > this.canvas.width - entity.radius) { entity.x = this.canvas.width - entity.radius; entity.velX *= -1; }
-                if (entity.y < entity.radius) { entity.y = entity.radius; entity.velY *= -1; }
-                if (entity.y > this.canvas.height - entity.radius) { entity.y = this.canvas.height - entity.radius; entity.velY *= -1; }
+                if (entity.x < entity.radius) {
+                    entity.x = entity.radius;
+                    entity.bounce(1, 0); // Wall on left
+                }
+                if (entity.x > this.canvas.width - entity.radius) {
+                    entity.x = this.canvas.width - entity.radius;
+                    entity.bounce(-1, 0); // Wall on right
+                }
+                if (entity.y < entity.radius) {
+                    entity.y = entity.radius;
+                    entity.bounce(0, 1); // Wall on top
+                }
+                if (entity.y > this.canvas.height - entity.radius) {
+                    entity.y = this.canvas.height - entity.radius;
+                    entity.bounce(0, -1); // Wall on bottom
+                }
+
 
                 // Check Pen
                 if (this.pen && this.pen.contains(entity)) {

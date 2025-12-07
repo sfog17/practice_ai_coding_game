@@ -62,6 +62,40 @@ export class Cat extends Entity {
         super.update(dt);
     }
 
+    bounce(normalX, normalY) {
+        // Reflect moveAngle based on the normal vector
+        // Formula: r = d - 2(d . n)n
+        // For simple axis-aligned walls:
+        // Horizontal wall (normal Y): Negate Y component of vector
+        // Vertical wall (normal X): Negate X component of vector
+
+        if (Math.abs(normalX) > Math.abs(normalY)) {
+            // Hitting vertical wall -> reflect horizonally
+            // To reflect angle across Y axis: PI - angle
+            if (normalX !== 0) {
+                // Check if we are actually moving into the wall
+                const vx = Math.cos(this.moveAngle);
+                // if normalX is positive (wall on left, push right), and vx is negative (moving left) -> bounce
+                // if normalX is negative (wall on right, push left), and vx is positive (moving right) -> bounce
+                if ((normalX > 0 && vx < 0) || (normalX < 0 && vx > 0)) {
+                    this.moveAngle = Math.PI - this.moveAngle;
+                }
+            }
+        } else {
+            // Hitting horizontal wall -> reflect vertically
+            // To reflect angle across X axis: -angle
+            if (normalY !== 0) {
+                const vy = Math.sin(this.moveAngle);
+                if ((normalY > 0 && vy < 0) || (normalY < 0 && vy > 0)) {
+                    this.moveAngle = -this.moveAngle;
+                }
+            }
+        }
+
+        // Add some randomness to prevent perfect loops
+        this.moveAngle += Utils.randomRange(-0.2, 0.2);
+    }
+
     render(ctx) {
         if (this.image) {
             ctx.drawImage(this.image, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
@@ -81,4 +115,5 @@ export class Cat extends Entity {
             ctx.fill();
         }
     }
+
 }
