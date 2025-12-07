@@ -20,17 +20,21 @@ export class Pen {
     }
 
     render(ctx) {
-        // Draw floor
+        // Draw darker grass floor for the pen
         if (this.image) {
             // Save context for pattern or clipping
             ctx.save();
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.width, this.height);
             ctx.clip();
-            // Draw tiled grass or just stretched? Stretched is easier for now.
-            // Or Pattern
+
+            // Draw tiled grass pattern
             const pattern = ctx.createPattern(this.image, 'repeat');
             ctx.fillStyle = pattern;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+
+            // Add darker overlay to distinguish pen area
+            ctx.fillStyle = 'rgba(101, 67, 33, 0.25)';
             ctx.fillRect(this.x, this.y, this.width, this.height);
             ctx.restore();
         } else {
@@ -38,16 +42,14 @@ export class Pen {
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
-        // Draw border (walls) - Leave bottom open? Or top?
-        // Let's just draw a box for now.
+        // Draw wooden fence border with double line effect
         ctx.strokeStyle = this.borderColor;
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 8;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
 
-        // Label
-        ctx.fillStyle = '#FFF';
-        ctx.font = '20px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText("PEN", this.x + this.width / 2, this.y + 30);
+        // Inner lighter border for depth
+        ctx.strokeStyle = '#A0826D';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(this.x + 4, this.y + 4, this.width - 8, this.height - 8);
     }
 }

@@ -190,7 +190,15 @@ export class Game {
     }
 
     render() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Draw grass background
+        const grassImg = this.resources.getImage('GRASS');
+        if (grassImg) {
+            const pattern = this.ctx.createPattern(grassImg, 'repeat');
+            this.ctx.fillStyle = pattern;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        } else {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
 
         // Draw Pen first (floor)
         if (this.pen) this.pen.render(this.ctx);
