@@ -3,54 +3,73 @@ export class AudioSystem {
         try {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
             this.enabled = true;
+
+            // Store the decoded audio data here
+            this.buffers = {
+                bark: null,
+                meow: null
+            };
+
+            // Start loading sounds immediately
+            this.loadSounds();
+
         } catch (e) {
             console.warn('Audio not supported in this browser:', e);
             this.enabled = false;
         }
     }
 
-
-    playBark() {
+    // New helper to fetch and decode audio files
+    async loadSounds() {
         if (!this.enabled) return;
+
+        const loadFile = async (url) => {
+            try {
+                const response = await fetch(url);
+                const arrayBuffer = await response.arrayBuffer();
+                return await this.ctx.decodeAudioData(arrayBuffer);
+            } catch (error) {
+                console.error(`Failed to load sound from ${url}:`, error);
+                return null;
+            }
+        };
+
+        // Assuming files are in the same directory. 
+        // If in a subfolder, change to './sounds/bark.mp3'
+        this.buffers.bark = await loadFile('./assets/bark.mp3');
+        this.buffers.meow = await loadFile('./assets/meow.mp3');
+    }
+
+    // Generic helper to play a sound from a buffer
+    playBuffer(buffer, volume = 0.5) {
+        if (!this.enabled || !buffer) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
-        const osc = this.ctx.createOscillator();
+
+        const source = this.ctx.createBufferSource();
         const gain = this.ctx.createGain();
 
-        osc.connect(gain);
+        source.buffer = buffer;
+
+        // Connect Source -> Gain -> Speakers
+        source.connect(gain);
         gain.connect(this.ctx.destination);
 
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+        gain.gain.value = volume;
 
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        source.start(0);
+    }
 
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.1);
+    playBark() {
+        // Play the pre-loaded buffer
+        this.playBuffer(this.buffers.bark, 0.4); // 0.4 is volume
     }
 
     playMeow() {
-        if (!this.enabled) return;
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(1200, this.ctx.currentTime + 0.1);
-        osc.frequency.linearRampToValueAtTime(600, this.ctx.currentTime + 0.4);
-
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.4);
-
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.4);
+        // Play the pre-loaded buffer
+        this.playBuffer(this.buffers.meow, 0.4);
     }
 
+    // Kept original synthesized sound for Ding
     playDing() {
         if (!this.enabled) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -69,6 +88,7 @@ export class AudioSystem {
         osc.stop(this.ctx.currentTime + 1.0);
     }
 
+    // Kept original synthesized sound for Win
     playWin() {
         if (!this.enabled) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();

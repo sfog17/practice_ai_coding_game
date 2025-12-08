@@ -239,7 +239,7 @@ export class Game {
 
         // Ding on new cat
         if (currentScore > this.score) {
-            this.audio.playDing();
+            this.audio.playMeow();
             if (currentScore === this.totalCats) {
                 this.audio.playWin();
             }
