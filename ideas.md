@@ -1,7 +1,8 @@
 # Ideas to improve
 
-- [ ] Avoid cat overlap
+- [x] Avoid cat overlap
 - [ ] Update terrain shape and spawning positions. Change from pen to invernadero.
+  - spawning position (eating place) should be invisible
 - [ ] Buy custom domain (e.g. cat-chaos.com)
 - [ ] Generate QR code
 - [ ] Game box art
@@ -9,8 +10,8 @@
   - [ ] Generate game cover art + add title + optional (age ratings, platform badge, etc.)
   - [ ] Back cover: Story + QR code + screenshots
 - [ ] Fix grass / background
-- [ ] Win screen is too short, require multiple click to restart
 - [ ] Personalized screen title
+- [ ] Win screen is too short, require multiple click to restart
 - [ ] The cat starts to count as out when they get too close to the exit, even if there are still inside the pen
 - [ ] Name cats after real cats + updated sprites
 - [ ] Time bar at top, X seconds remaining

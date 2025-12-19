@@ -191,7 +191,7 @@ export class Game {
 
         this.entities.forEach(entity => {
             if (entity instanceof Cat) {
-                entity.update(dt, this.dog, this.canvas);
+                entity.update(dt, this.dog, this.entities, this.canvas);
 
                 // Check pen collision for cats
                 if (this.pen) {

@@ -12,9 +12,11 @@ export class Cat extends Entity {
         this.moveAngle = Math.random() * Math.PI * 2;
     }
 
-    update(dt, dog, canvas) {
+
+    update(dt, dog, entities, canvas) {
         // AI Logic
         let speed = this.normalSpeed;
+
 
         // Check for Dog
         const distToDog = Utils.dist(this, dog);
@@ -55,6 +57,9 @@ export class Cat extends Entity {
             }
         }
 
+        // Apply Separation
+        this.separate(entities);
+
         // Apply Velocity
         this.velX = Math.cos(this.moveAngle) * speed;
         this.velY = Math.sin(this.moveAngle) * speed;
@@ -94,6 +99,74 @@ export class Cat extends Entity {
 
         // Add some randomness to prevent perfect loops
         this.moveAngle += Utils.randomRange(-0.2, 0.2);
+    }
+
+    separate(entities) {
+        let desiredSeparation = Config.CAT_SEPARATION_RADIUS;
+        let sumX = 0;
+        let sumY = 0;
+        let count = 0;
+
+        for (let other of entities) {
+            // Check if other is a Cat and not self
+            if (other instanceof Cat && other !== this) {
+                let d = Utils.dist(this, other);
+                // If the distance is greater than 0 and less than an arbitrary amount
+                if ((d > 0) && (d < desiredSeparation)) {
+                    // Calculate vector pointing away from neighbor
+                    let diffX = this.x - other.x;
+                    let diffY = this.y - other.y;
+
+                    // Normalize
+                    let length = Math.sqrt(diffX * diffX + diffY * diffY);
+                    if (length > 0) {
+                        diffX /= length;
+                        diffY /= length;
+                    }
+
+                    // Weight by distance (closer = stronger)
+                    // We can just use the normalized vector for now, 
+                    // or weight it by 1/d for stronger repulsion when very close.
+
+                    sumX += diffX;
+                    sumY += diffY;
+                    count++;
+                }
+            }
+        }
+
+        if (count > 0) {
+            // Average
+            sumX /= count;
+            sumY /= count;
+
+            // Normalize average
+            let length = Math.sqrt(sumX * sumX + sumY * sumY);
+            if (length > 0) {
+                sumX /= length;
+                sumY /= length;
+            }
+
+            // Apply to moveAngle
+            // A simple way is to blend the current direction with the separation direction
+            // But since we are using angles, let's just cheat and add to position directly 
+            // for immediate "pushing" effect, or modify angle.
+            // Modifying angle is smoother but might not be strong enough for strict non-overlap.
+            // Let's modify the angle of movement to include this component.
+
+            // Get current velocity vector
+            let currentVx = Math.cos(this.moveAngle);
+            let currentVy = Math.sin(this.moveAngle);
+
+            // Add separation force
+            // How strong?
+            const separationStrength = 2.5;
+            currentVx += sumX * separationStrength;
+            currentVy += sumY * separationStrength;
+
+            // Update angle
+            this.moveAngle = Math.atan2(currentVy, currentVx);
+        }
     }
 
     render(ctx) {
